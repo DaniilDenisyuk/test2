@@ -21,12 +21,7 @@ function Database(config) {
     return this.query(sql, data);
   };
 
-  this.select = async function (
-    table,
-    { sort, limit, offset },
-    fields = ["*"],
-    condition = null
-  ) {
+  this.select = async function (table, fields = ["*"], condition = null) {
     const keys = fields.join(", ");
     const sql = `SELECT ${keys} FROM ${table}`;
     let whereClause = "";
@@ -35,27 +30,7 @@ function Database(config) {
     if (condition) {
       whereClause = " WHERE " + condition;
     }
-    const filters = [];
-    if (sort) {
-      filters.push("ORDER BY");
-      const fields = sort.split(",");
-      let count = fields.length;
-      for (const field of fields) {
-        const order = field.charAt(0) === "-" ? "DESC" : "ASC";
-        filters.push(`${field.substring(1)} ${order}`);
-        count--;
-        if (count > 0) filters.push(",");
-      }
-    }
-    if (limit) {
-      filters.push(`LIMIT $${i++}`);
-      args.push(limit);
-    }
-    if (offset) {
-      filters.push(`OFFSET $${i++}`);
-      args.push(offset);
-    }
-    const res = await this.query(sql + whereClause + filters.join(" "), args);
+    const res = await this.query(sql + whereClause, args);
     return res.rows;
   };
 }
